@@ -5,6 +5,7 @@ import com.cultivation.javaBasic.util.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InterfaceTest {
 
@@ -14,7 +15,7 @@ class InterfaceTest {
 
         // TODO: please modify the following code to pass the test
         // <--start
-        final String expected = null;
+        final String expected = "The truth of the universe is 42";
         // --end-->
 
         assertEquals(expected, instance.tellMeTheTruthOfTheUniverse());
@@ -26,7 +27,7 @@ class InterfaceTest {
 
         // TODO: please modify the following code to pass the test
         // <--start
-        final String expected = null;
+        final String expected = "The truth of the universe is Anime";
         // --end-->
 
         assertEquals(expected, instance.tellMeTheTruthOfTheUniverse());
@@ -38,20 +39,21 @@ class InterfaceTest {
 
         // TODO: please modify the following code to pass the test
         // <--start
-        final String expected = null;
+        final String expected = "The truth of the universe is Game";
         // --end-->
 
         assertEquals(expected, instance.tellMeTheTruthOfTheUniverse());
     }
 
     @Test
-    void should_resolve_ambiguity_by_yourself() {
+    void should_resolve_ambiguity_by_yourself() { //ambiguity:歧义
         NameImpl instance = new NameImpl();
 
         String name = instance.getName();
 
         assertEquals("Person", name);
     }
+
 }
 
 /*

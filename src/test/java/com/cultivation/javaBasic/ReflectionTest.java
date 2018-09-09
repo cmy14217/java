@@ -1,11 +1,15 @@
 package com.cultivation.javaBasic;
 
-import com.cultivation.javaBasic.util.Employee;
-import com.cultivation.javaBasic.util.MethodWithAnnotation;
+import com.cultivation.javaBasic.showYourIntelligence.PersonForEquals;
+import com.cultivation.javaBasic.util.*;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class ReflectionTest {
     @Test
@@ -15,7 +19,7 @@ class ReflectionTest {
 
         // TODO: please modify the following code to pass the test
         // <--start
-        final Class<? extends Employee> expected = null;
+        final Class<? extends Employee> expected = Employee.class;
         // --end-->
 
         assertEquals(expected, employeeClass);
@@ -28,7 +32,7 @@ class ReflectionTest {
 
         // TODO: please modify the following code to pass the test
         // <--start
-        final String expected = null;
+        final String expected = Employee.class.getName();
         // --end-->
 
         assertEquals(expected, employeeClass.getName());
@@ -41,7 +45,7 @@ class ReflectionTest {
 
         // TODO: please created an instance described by `theClass`
         // <--start
-        Employee instance = null;
+        Employee instance = (Employee) theClass.newInstance();
         // --end-->
 
         assertEquals("Employee", instance.getTitle());
@@ -54,7 +58,16 @@ class ReflectionTest {
 
         // TODO: please get all public static declared methods of Double. Sorted in an ascending order
         // <--start
-        String[] publicStaticMethods = null;
+        Method[] methods = doubleClass.getDeclaredMethods();
+        List<String> publicStaticMethodsNames = new ArrayList<>();
+        for (Method method : methods) {
+            int modifier = method.getModifiers();
+            if(Modifier.isPublic(modifier) && Modifier.isStatic(modifier)){
+                publicStaticMethodsNames.add(method.getName());
+            }
+        }
+        String[] publicStaticMethods = publicStaticMethodsNames.toArray(new String[0]);
+        Arrays.sort(publicStaticMethods);
         // --end-->
 
         final String[] expected = {
@@ -74,7 +87,8 @@ class ReflectionTest {
 
         // TODO: please get the value of `getTitle` method using reflection. No casting to Employee is allowed.
         // <--start
-        Object result = null;
+        Object result = employee.getClass().getDeclaredMethod("getTitle").invoke(employee);
+        //Object result = employee.getClass().getDeclaredMethod("getTitle", Integer.class).invoke(employee, 1);
         // --end-->
 
         assertEquals("Employee", result);
@@ -87,7 +101,7 @@ class ReflectionTest {
 
         // TODO: please get the class of array item `employees`
         // <--start
-        Class<?> itemClass = null;
+        Class<?> itemClass = employees.getClass().getComponentType();
         // --end-->
 
         assertEquals(Employee.class, itemClass);
@@ -96,14 +110,39 @@ class ReflectionTest {
     @SuppressWarnings({"ConstantConditions", "unused"})
     @Test
     void should_be_able_to_get_the_methods_who_contains_MyAnnotation_annotation() {
-        Class<MethodWithAnnotation> theClass = MethodWithAnnotation.class;
+        Class<myMethodContainsAnnotation> myClass = myMethodContainsAnnotation.class;
+        Method[] methods = myClass.getDeclaredMethods();
+        List<String> containsAnnotationMethodsNames = new ArrayList<>();
+        for (Method method : methods) {
+            if(method.isAnnotationPresent(MyAnnotation.class)){
+                containsAnnotationMethodsNames.add(method.getName());
+            }
+        }
+        String[] methodsContainsAnnotation = containsAnnotationMethodsNames.toArray(new String[0]);
+        String[] expectedMethodsNames = new String[]{"myMethod","myMethod2"};
+        assertArrayEquals(expectedMethodsNames, methodsContainsAnnotation);
+    }
 
-        // TODO: please get the methods who contains MyAnnotation annotation.
-        // <--start
-        String[] methodsContainsAnnotations = null;
-        // --end-->
+    @Test
+    void theSupperClassOfArrayOfOneClassIsNotTheAtrrayOfTheSupperClassOfThatClass() {
+        Student[] students = new Student[4];
+        People[] people = new People[4];
+        students[0] = new Student();
+        people[0] = new People();
+        assertFalse(people.getClass().equals(students.getClass().getSuperclass()));
+        assertTrue(people[0].getClass().equals(students[0].getClass().getSuperclass()));
+    }
 
-        assertArrayEquals(new String[] {"theMethod"}, methodsContainsAnnotations);
+    @Test
+    void objectArraySort() {
+        PersonForEquals person1 = new PersonForEquals("Tom",(short)1987);
+        PersonForEquals person2 = new PersonForEquals("Jan",(short)1990);
+        PersonForEquals person3 = new PersonForEquals("Marry",(short)1989);
+        PersonForEquals person4 = new PersonForEquals("Jack",(short)1991);
+        PersonForEquals[] initialPerson = new PersonForEquals[]{person1,person2,person3,person4};
+        Arrays.sort(initialPerson);
+        PersonForEquals[] expectedPerson = new PersonForEquals[]{person4,person2,person3,person1};
+        assertArrayEquals(expectedPerson, initialPerson);
     }
 }
 

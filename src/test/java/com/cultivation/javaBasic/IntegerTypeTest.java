@@ -5,6 +5,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class IntegerTypeTest {
 
@@ -24,9 +25,26 @@ class IntegerTypeTest {
     }
 
     @Test
+    void testTheOpsitiveOrNot() {
+        for (int i = Integer.MIN_VALUE; i < 0; i++) {
+            assertEquals(1, i >>> 31);
+        }
+        for (int j = Integer.MAX_VALUE; j > 0; j--) {
+            assertEquals(0, j >>> 31);
+        }
+
+        int target = 1;
+        int target2 = -1;
+        for (int k = 0; k < 31; k++) {
+            assertTrue(target << 1 > 0);
+            assertTrue(target2 << 1 < 0);
+        }
+    }
+
+    @Test
     void should_get_range_of_primitive_short_type() {
-        final short maximum = 32767;
-        final short minimum = -32768;
+        final short maximum = 32767;//0x7fff
+        final short minimum = -32768; //0x8000
 
         // TODO: You should not write concrete number here. Please find a property or constant instead.
         // <!--start
@@ -126,7 +144,7 @@ class IntegerTypeTest {
     @Test
     void should_truncate_number_when_casting() {
         final int integer = 0x0123_4567;
-        final short smallerInteger = (short)integer;
+        final short smallerInteger = (short) integer;
 
         // TODO: please modify the following lines to pass the test
         // <!--start
@@ -134,6 +152,16 @@ class IntegerTypeTest {
         // --end-->
 
         assertEquals(expected, smallerInteger);
+    }
+
+    @Test
+    void testIfOpsitive() {
+        int integer = 0x0123_4567;
+        short smallerInteger = (short) integer;
+        assertTrue((integer ^ smallerInteger) > 0);
+        int a = 0x0123_8000;
+        short b = (short) a;
+        assertTrue((a ^ b) < 0);
     }
 
     @Test
@@ -171,12 +199,12 @@ class IntegerTypeTest {
     private int add(int left, int right) {
         // TODO: Please implement the method. Adding two numbers.
         // The method should throw ArithmeticException if overflow or underflow happens.
-        int result = left + right;
-        if(result == Integer.MAX_VALUE || result == Integer.MIN_VALUE){
-            throw new ArithmeticException();
-        }
-        return result;
-        //throw new NotImplementedException();
+//        int result = left + right;
+//        if((result >>> 31 ^ left >>> 31) == 1 && (result >>> 31 ^ right >>> 31) == 1){
+//            throw new ArithmeticException();
+//        }
+//        return result;
+        return Math.addExact(left, right);
     }
 
     /*

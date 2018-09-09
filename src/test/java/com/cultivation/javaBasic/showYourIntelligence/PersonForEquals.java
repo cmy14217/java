@@ -1,11 +1,12 @@
 package com.cultivation.javaBasic.showYourIntelligence;
 
+import com.cultivation.javaBasic.util.Person;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.Arrays;
 import java.util.Objects;
-
 @SuppressWarnings("unused")
-public class PersonForEquals {
+public class PersonForEquals implements Comparable {
     private final String name;
     private final short yearOfBirth;
 
@@ -34,17 +35,36 @@ public class PersonForEquals {
     @SuppressWarnings("Contract")
     @Override
     public boolean equals(Object obj) {
-        // TODO: please modify the following code to pass the test
-        // <--start
-        throw new NotImplementedException();
-        // --end-->
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != getClass()) {
+            return false;
+        }
+        PersonForEquals person = (PersonForEquals)obj;
+        return person.name == name && person.yearOfBirth == yearOfBirth;
     }
 
     @Override
     public int hashCode() {
         // TODO: please modify the following code to pass the test
         // <--start
-        throw new NotImplementedException();
+        int hash = 1;
+        hash = hash * 3 + name == null ? 0 : name.hashCode();
+        hash = hash * 5 + yearOfBirth;
+        return hash;
         // --end-->
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if(o == null){
+            throw new NullPointerException();
+        }
+        PersonForEquals person = (PersonForEquals) o;
+        if(name.compareTo(person.name) == 0){
+            return Short.compare(yearOfBirth, person.yearOfBirth);
+        }
+        return name.compareTo(person.name);
     }
 }

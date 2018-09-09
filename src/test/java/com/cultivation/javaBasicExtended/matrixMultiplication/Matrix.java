@@ -16,14 +16,56 @@ class Matrix {
     public Matrix(int[][] matrixArray) {
         // TODO: please implement the constructor of a matrix.
         // <--start
-        throw new NotImplementedException();
+        String message = "";
+        if (matrixArray == null) {
+            message = "Raw matrix is null";
+        } else if (matrixArray.length == 0){
+            message = "Raw matrix contains 0 row";
+        } else {
+            int lengthOfFirstRowOfArray = matrixArray[0].length;
+            for (int[] oneRow : matrixArray) {
+                if (oneRow == null) {
+                    message = "Raw matrix contains null row";break;
+                } else if (oneRow.length == 0) {
+                    message = "At least one row of raw matrix contains 0 column";break;
+                } else if (lengthOfFirstRowOfArray != oneRow.length) {
+                    message = "Raw matrix is not rectangle";break;
+                }
+            }
+        }
+        if(!message.equals("")){
+            throw new IllegalArgumentException(message);
+        }
+        this.storage = matrixArray;
         // --end-->
     }
 
     public static Matrix multiply(Matrix left, Matrix right) {
         // TODO: please implement the method to pass the tests.
         // <--start
-        throw new NotImplementedException();
+        if (left == null || right == null){
+            throw new IllegalArgumentException();
+        }
+        if (left.rows() != right.columns() && left.columns() != right.rows()){
+            throw new IllegalArgumentException();
+        }
+        int resultRow = 0;
+        int resultColumn = 0;
+        if(left.columns() == right.rows()){
+            resultRow = left.rows();
+            resultColumn = right.columns();
+        }
+        int[][] resultMatrix = new int[resultRow][resultColumn];
+        for (int i = 0; i < resultRow; i++) {
+            for (int j = 0; j < resultColumn; j++) {
+                int sum = 0;
+                for (int k = 0; k < left.columns(); k++) {
+                    sum += left.storage[i][k] * right.storage[k][j];
+                }
+                resultMatrix[i][j] = sum;
+            }
+        }
+        return new Matrix(resultMatrix);
         // --end-->
     }
 

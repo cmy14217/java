@@ -21,6 +21,53 @@ class FloatingTypeTest {
         assertEquals(expected, integer);
     }
 
+    @Test
+    void fromOneDataTypeToTheOther() {
+
+        byte byteNum = 1;
+        short byteToShort = byteNum;
+        int byteToInt = byteNum;
+        long byteToLong = byteNum;
+        float byteToFloat = byteNum;
+        double byteToDouble = byteNum;
+
+        short shortNum = 11;
+        byte shortToByte = (byte)shortNum;
+        int shortToInt = shortNum;
+        long shortToLong = shortNum;
+        float shortToFloat = shortNum;
+        double shortToDouble = shortNum;
+
+        int intNum = 12;
+        byte intToByte = (byte)intNum;
+        short intToShort = (short)intNum;
+        long intToLong = intNum;
+        float intToFloat = intNum;
+        double intToDoublie = intNum;
+
+        long longNum = 232L;
+        byte longToByte = (byte)longNum;
+        short longToShort = (short)longNum;
+        int longToInt = (int)longNum;
+        float longToFloat = longNum;
+        double longToDouble = longNum;
+
+        float floatNum = 11.32f;
+        byte floatToByte = (byte)floatNum;
+        short floatToShort = (short)floatNum;
+        int floatToInt = (int)floatNum;
+        long floatToLong = (long)floatNum;
+        double floatToDouble = floatNum;
+
+        double doubleNum = 3.33d;
+        byte doubleToByte = (byte)doubleNum;
+        short doubleToShort = (short)doubleNum;
+        int doubleToInt = (int)doubleNum;
+        long doubleToLong = (long)doubleNum;
+        float doubleToFloat = (float)doubleNum;
+
+    }
+
     @SuppressWarnings({"divzero", "NumericOverflow"})
     @Test
     void should_judge_special_double_cases() {
@@ -64,6 +111,12 @@ class FloatingTypeTest {
     private boolean isNan(double realNumber) {
         // TODO: please implement the method to pass the test.
         return Double.isNaN(realNumber);
+    }
+
+    @Test
+    void testNANEquals() {
+        assertEquals(Double.NaN, Double.NaN);
+        assertFalse(Double.NaN == Double.NaN);
     }
 
     @SuppressWarnings("unused")
