@@ -1,27 +1,23 @@
 package com.cultivation.javaBasic;
 
 import com.cultivation.javaBasic.showYourIntelligence.StackFrameHelper;
-import com.cultivation.javaBasic.util.ClosableStateReference;
-import com.cultivation.javaBasic.util.ClosableWithException;
-import com.cultivation.javaBasic.util.ClosableWithoutException;
-import com.cultivation.javaBasic.util.MyClosableType;
+import com.cultivation.javaBasic.util.*;
 import com.cultivation.javaBasic.showYourIntelligence.StringFormatException;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExceptionTest {
     @Test
     void should_customize_exception() { //customize:定制
-        try {
+        try{
             throw new StringFormatException("the message");
-        } catch (StringFormatException error) {
-            assertEquals("the message", error.getMessage());
+        }catch(StringFormatException e){
+            assertEquals(null, e.getCause());
+            assertEquals("the message", e.getMessage());
         }
     }
 
@@ -107,6 +103,34 @@ class ExceptionTest {
                 return 0;
             }
         }
+    }
+
+    public int executeOrderOfTryCatchFinally(){
+        try{
+            throw new Exception();
+        }finally {
+            throw new IllegalStateException();
+        }
+    }
+
+    @Test
+    void test_try_finally() {
+        assertThrows(Exception.class, this::executeOrderOfTryCatchFinally);
+        assertThrows(IllegalStateException.class, this::executeOrderOfTryCatchFinally);
+    }
+
+    @Test
+    public void method1(){
+        method2();
+        assertTrue(true);
+    }
+
+    public void method2(){
+        throw new Error();
+    }
+
+    public void method3(){
+
     }
 }
 

@@ -1,37 +1,43 @@
 package com.cultivation.javaBasic;
 
-import com.cultivation.javaBasic.util.Employee;
-import com.cultivation.javaBasic.util.KeyValuePair;
-import com.cultivation.javaBasic.util.Manager;
-import com.cultivation.javaBasic.util.Pair;
+import com.cultivation.javaBasic.util.*;
 import org.junit.jupiter.api.Test;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GenericTest {
     @SuppressWarnings("unused")
     @Test
     void should_auto_resolve_generic_method() {
         final String[] words = {"Hello", "Good", "Morning"};
+        final Integer[] intWords = {1,2,3};
 
         // TODO: please call getMiddle method for string
         // <--start
-        final String middle = null;
+        final String middle = getLast(words);
+        final int ineMiddle = getLast(intWords);
         // --end-->
 
-        assertEquals("Good", middle);
+        assertEquals("Morning", middle);
+    }
+
+    private static <T> T getLast(T[] array){
+        return array[array.length - 1];
     }
 
     @Test
     void should_specify_a_type_restriction_on_typed_parameters() {
         int minimumInteger = min(new Integer[]{1, 2, 3});
         double minimumReal = min(new Double[]{1.2, 2.2, -1d});
+        String miniString = min(new String[]{"a","b","c"});
 
         assertEquals(1, minimumInteger);
         assertEquals(-1d, minimumReal, 1.0E-05);
+        assertEquals("a",miniString);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -42,10 +48,18 @@ class GenericTest {
 
         // TODO: please modify the following code to pass the test
         // <--start
-        final Optional<Boolean> expected = Optional.empty();
+        final Optional<Boolean> expected = Optional.of(true);
         // --end-->
 
         assertEquals(expected.get(), pair.getClass().equals(pairWithDifferentTypeParameter.getClass()));
+    }
+
+    @Test
+    void should_type_of_generic_class_will_be_erosed() throws NoSuchFieldException {
+        NoneBoundGenericClass<String> genericClass = new NoneBoundGenericClass<>();
+        Class<?> fieldClass = genericClass.getClass().getField("field").getType();
+        Class<Object> expectedClass = Object.class;
+        assertEquals(expectedClass, fieldClass);
     }
 
     @SuppressWarnings({"UnnecessaryLocalVariable", "unchecked", "unused", "ConstantConditions"})
@@ -64,7 +78,7 @@ class GenericTest {
 
         // TODO: please modify the following code to pass the test
         // <--start
-        final Optional<Boolean> expected = Optional.empty();
+        final Optional<Boolean> expected = Optional.of(true);
         // --end-->
 
         assertEquals(expected.get(), willThrow);
@@ -80,32 +94,62 @@ class GenericTest {
         assertEquals("Hello", pair.getSecond());
     }
 
-    @SuppressWarnings("unused")
-    private static <T> T getMiddle(T[] args) {
-        return args[args.length / 2];
-    }
-
     // TODO: please implement the following code to pass the test. It should be generic after all.
     // The method should only accept `Number` and the number should implement `Comparable<T>`
     // <--start
     @SuppressWarnings("unused")
-    private static <T extends Number & Comparable<T>> T min(T[] values) {
-        throw new NotImplementedException();
+
+    private static <T extends Comparable<T>> T min(T[] array){
+        if (array == null || array.length == 0){
+            return null;
+        }
+        T min = array[0];
+        for (T element : array) {
+            min = element.compareTo(min) < 0 ? element : min;
+        }
+        return min;
     }
+
     // --end-->
 
     // TODO: please implement following method to pass the test. But you cannot change the signature
     // <--start
     @SuppressWarnings("unused")
     private static void swap(Pair<?> pair) {
-        throw new NotImplementedException();
+         swapHelper(pair);
+    }
+
+    private static <T> void swapHelper(Pair<T> pair){
+        T temp = pair.getFirst();
+        pair.setFirst(pair.getSecond());
+        pair.setSecond(temp);
     }
 
     // TODO: You can add additional method within the range if you like
     // <--start
 
     // --end-->
+
+
+    @Test
+    void should_refer_Class_extends_class_implement_Comparable() {
+        MuySecondInteger integer1 = new MuySecondInteger(1);
+        MuySecondInteger integer2 = new MuySecondInteger(2);
+        MuySecondInteger mininteger = min(new MuySecondInteger[]{integer1, integer2});
+        assertEquals(integer1, mininteger);
+    }
 }
+//
+//class testClass<T>{
+//    public Integer method(Integer a){
+//        return a;
+//    }
+//
+//    public <T> T method(List<? super Integer> a){
+//        return a;
+//    }
+//}
+
 
 /*
  * - Can you give an example when you have to specify a typed parameter in generic method call?

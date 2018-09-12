@@ -14,31 +14,35 @@ class InnerClassTest {
     @SuppressWarnings("ConstantConditions")
     @Test
     void should_access_instance_field_of_parent_class() {
-        InnerClassUpdateField instance = new InnerClassUpdateField();
-        instance.somethingHappen();
-
-        // TODO: please modify the following code to pass the test
-        // <--start
-        final Optional<Integer> expected = Optional.of(2019);
-        // --end-->
-
-        assertEquals(expected.get().intValue(), instance.getYear());
+        InnerClassUpdateField innerClassUpdateField = new InnerClassUpdateField(2018);
+        innerClassUpdateField.new UpdateField(2);
+        int expectedYear = 2020;
+        assertEquals(expectedYear, innerClassUpdateField.getYear());
     }
 
     @SuppressWarnings("ConstantConditions")
     @Test
     void should_refer_inner_class_from_outside() {
-        InnerClassUpdateField instance = new InnerClassUpdateField();
+        InnerClassUpdateField innerClassUpdateField = new InnerClassUpdateField();
+        innerClassUpdateField.new UpdateField().increasement();
+        int expectedYear = 2020;
+        assertEquals(expectedYear, innerClassUpdateField.getYear());
+    }
 
-        InnerClassUpdateField.YearIncrementer incrementer = instance.new YearIncrementer();
-        incrementer.increment();
+    @Test
+    void should_increase_field_of_outer_class_in_Inner_class() {
+        InnerClassUpdateField innerClassUpdateField = new InnerClassUpdateField(2018);
+        innerClassUpdateField.new UpdateField(2).add();
+        int expectedYear = 2020;
+        assertEquals(expectedYear, innerClassUpdateField.getYear());
+    }
 
-        // TODO: please modify the following code to pass the test
-        // <--start
-        final Optional<Integer> expected = Optional.of(2019);
-        // --end-->
-
-        assertEquals(expected.get().intValue(), instance.getYear());
+    @Test
+    void should_get_field_of_inner_class_to_modify_the_field_of_outer_class() {
+        InnerClassUpdateField innerClassUpdateField = new InnerClassUpdateField(2018);
+        innerClassUpdateField.add();
+        int expectedYear = 2020;
+        assertEquals(expectedYear, innerClassUpdateField.getYear());
     }
 
     @SuppressWarnings("ConstantConditions")
