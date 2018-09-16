@@ -112,13 +112,16 @@ String[] words = {“a”,”b”,”c”};
 Arrays.stream(words); //
 ```
 对于non-primitive type类型的数组，调用Arrays的public static <T> Stream<T> stream(T[] array))方法转换得到的返回类型是Stream\<T>。但是如果实参为基本数据类型的数组，对于int，long，double来说，有专门的返回类型IntStream，LongStream，DoubleStream。
+
 3. 生成流的方法
 例：
 	-	`Stream<Integer> intergerStream = Stream.of(1,2,3,4);`
 	-	`Stream<Integer> intergerStream = Stream.generate(() -> 1);`
 	-	`Stream<Integer> intergerStream = Stream.iterate(0, i -> i+1 );`
+
 4. streamName.skip(n) ：跳过n个元素，当前元素个数低于n，则抛出IllegalArgumentException。
-5. 5．
+
+5. 
    - 一个流只能被使用一次
    - 若对流只使用中间操作（intermediate operation），则该操作不会被实际执行（lazy）。只有对流进行终端操作（terminal operation），其前面的所有中间操作才会被执行。
 
