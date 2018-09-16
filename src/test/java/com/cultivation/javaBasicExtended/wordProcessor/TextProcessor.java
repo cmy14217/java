@@ -31,7 +31,13 @@ class TextProcessor {
     String process(String text) {
         // TODO: Please implement the method to pass all the test
         // <--start
-        throw new NotImplementedException();
+        String validCharacters = "^[a-zA-Z ]+$";
+        if (text == null || !text.matches(validCharacters)) {
+            throw new IllegalArgumentException("ERROR: Invalid character detected!");
+        }
+        CharacterDistinguish characterDistinguish = new CharacterDistinguish(text.toCharArray());
+        characterDistinguish.getAllSegements(settings.getWidth());
+        return characterDistinguish.toString();
         // --end-->
     }
 }

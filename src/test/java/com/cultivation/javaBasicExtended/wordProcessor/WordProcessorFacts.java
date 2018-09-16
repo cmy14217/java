@@ -3,6 +3,7 @@ package com.cultivation.javaBasicExtended.wordProcessor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WordProcessorFacts {
@@ -22,6 +23,14 @@ class WordProcessorFacts {
             assertThrows(IllegalArgumentException.class, () ->
                 new TextProcessor(invalidWidth).process(null));
         }
+    }
+
+    @Test
+    void should_throw_on_invalid_text() {
+        int validWidth = 10;
+        String invalidText = "apple*(";
+        assertThrows(IllegalArgumentException.class, () ->
+                new TextProcessor(validWidth).process(invalidText));
     }
 
     @Test
@@ -46,6 +55,15 @@ class WordProcessorFacts {
         assertEquals(
             "So(1);   (1);many(1); (1);whitespaces(2,3);",
             processed
+        );
+    }
+
+    @Test
+    void should_process_single_word_of_multiply_lines() {
+        String processed = new TextProcessor(10).process("xnkjanhxkjsaxnbajhsbcajknxkaxnsaxsxqsasxkjnxkmkaska");
+        assertEquals(
+                "xnkjanhxkjsaxnbajhsbcajknxkaxnsaxsxqsasxkjnxkmkaska(1,2,3,4,5,6);",
+                processed
         );
     }
 }

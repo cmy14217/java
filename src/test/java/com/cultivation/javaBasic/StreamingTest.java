@@ -3,6 +3,7 @@ package com.cultivation.javaBasic;
 import com.cultivation.javaBasic.util.AnimeCharacter;
 import com.cultivation.javaBasic.util.KeyValuePair;
 import com.cultivation.javaBasic.util.ValueHolder;
+import com.cultivation.javaBasicExtended.simpleMvc3.Controller;
 import org.junit.jupiter.api.Test;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -11,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.*;
 
+import static java.util.stream.Collectors.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StreamingTest {
@@ -173,7 +175,7 @@ class StreamingTest {
         Stream<Stream<Character>> streamArrayCharacters = Stream.of("Abc", "Def", "Hij").map(StreamingTest::letters);
         Stream<Character> streamCharacters = streamArrayCharacters.flatMap(i -> i);
         assertArrayEquals(new Character[]{'A', 'b', 'c', 'D', 'e', 'f', 'H', 'i', 'j'}, streamCharacters.toArray(Character[]::new));
-        
+
         //assertEquals(Object.class, streamCharacters.toArray().getClass());
     }
 
@@ -323,14 +325,7 @@ class StreamingTest {
 
         // TODO: In the `Runnable` object. Please throw IllegalStateException when `empty` is not present.
         // <--start
-        Runnable emptyRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (!empty.isPresent()) {
-                    throw new IllegalStateException();
-                }
-            }
-        };
+        Runnable emptyRunnable = () -> empty.orElseThrow(IllegalStateException::new);
         // --end-->
 
         assertThrows(IllegalStateException.class, emptyRunnable::run);
@@ -345,12 +340,9 @@ class StreamingTest {
         // TODO: please add the upper-cased value to result if `optional` is present in `Consumer<Optional<String>>`
         // TODO: implementation.
         // <--start
-        Consumer<Optional<String>> optionalConsumer = new Consumer<Optional<String>>() {
-            @Override
-            public void accept(Optional<String> s) {
-                if(optional.isPresent()){
-                    result.add(optional.get().toUpperCase());
-                }
+        Consumer<Optional<String>> optionalConsumer = s -> {
+            if(s.isPresent()){
+                result.add(s.get().toUpperCase());
             }
         };
         // --end-->
@@ -372,21 +364,16 @@ class StreamingTest {
         // TODO: please add the upper-cased value to `result` list if optional is present. Then return the boolean
         // TODO: mapping result of `result.add`.
         // <--start
-        Function<Optional<String>, Optional<Boolean>> mapping = new Function<Optional<String>, Optional<Boolean>>() {
-            @Override
-            public Optional<Boolean> apply(Optional<String> s) {
-                if(s.isPresent()) {
-                    result.add(s.get().toUpperCase());
-                }
-                return s.map(i -> new Boolean(i));
-            }
-        };
+        Function<Optional<String>, Optional<Boolean>> mapping = optionalS ->
+                optionalS.map(
+                        (t) -> result.add(t.toUpperCase())
+                );
         // --end-->
 
         Optional<Boolean> mappingResult = mapping.apply(optional);
         Optional<Boolean> emptyMappingResult = mapping.apply(empty);
 
-        //assertTrue(mappingResult.orElseThrow(IllegalStateException::new));
+        assertTrue(mappingResult.orElseThrow(IllegalStateException::new));
         assertEquals("WORD", result.get(0));
         assertFalse(emptyMappingResult.isPresent());
     }
@@ -404,16 +391,9 @@ class StreamingTest {
         // TODO: The `findFirstAndGet` interface will find first item in stream. If it can be found, map it with
         // TODO: `YieldOptional.get` method. Otherwise, returns empty Optional.
         // <--start
-        Function<Stream<YieldOptional>, Optional<String>> findFirstAndGet = new Function<Stream<YieldOptional>, Optional<String>>() {
-            @Override
-            public Optional<String> apply(Stream<YieldOptional> yieldOptionalStream) {
-                Optional<YieldOptional> firstYieldOptional = yieldOptionalStream.findFirst();
-                if(firstYieldOptional.isPresent()){
-                    return firstYieldOptional.get().get();
-                }
-                return Optional.empty();
-            }
-        };
+        Function<Stream<YieldOptional>, Optional<String>> findFirstAndGet = yieldOptionalStream ->
+            yieldOptionalStream.findFirst().flatMap(YieldOptional::get)
+        ;
         // --end-->
 
         Optional<String> emptyStreamResult = findFirstAndGet.apply(emptyStream);
@@ -427,18 +407,23 @@ class StreamingTest {
     @SuppressWarnings({"ConstantConditions", "unused"})
     @Test
     void should_collect_result() {
-        Stream<String> stream = Stream.of("Hello", "What", "is", "your", "name");
-
-        // TODO: please implement toList collector using `stream.collect`. You cannot use existing `toList` collector.
-        // <--start
-        ArrayList<String> list = (ArrayList<String>) stream.collect(Collectors.toList());
-        // --end-->
+        final int[] executeCount = new int[]{0,0,0};
+        Stream<String> stringStream = Stream.of("a","b","c","d","e","f");
+        ArrayList<String> list = stringStream.parallel().collect(
+                () -> {
+                    executeCount[0]++;
+                    return new ArrayList<>();},
+                (stringList, string) -> {
+                    stringList.add(string);
+                    executeCount[1]++;},
+                (list1, list2) -> {
+                    list1.addAll(list2);
+                    executeCount[2]++;}
+        );
 
         assertEquals(ArrayList.class, list.getClass());
-        assertIterableEquals(
-            Arrays.asList("Hello", "What", "is", "your", "name"),
-            list
-        );
+        assertIterableEquals(Arrays.asList("a","b","c","d","e","f"),list);
+        assertTrue(executeCount[0] == executeCount[1] - 1);
     }
 
     @SuppressWarnings({"ConstantConditions", "unused"})
@@ -455,7 +440,8 @@ class StreamingTest {
         HashMap<String, Integer> map = stream.collect(
                 HashMap::new,
                 (theMap, element) -> theMap.put(element.getKey(), element.getValue()),
-                (theMap, u) -> {});
+                HashMap::putAll
+        );
         // --end-->
 
         assertEquals(2, map.size());
@@ -463,6 +449,35 @@ class StreamingTest {
         assertEquals(2033, map.get("Harry").intValue());
         assertTrue(map.containsKey("Bob"));
         assertEquals(2014, map.get("Bob").intValue());
+    }
+
+
+    @Test
+    void should_store_0_9_use_collector() {
+        Stream<Integer> numberStream = Stream.iterate(0, i -> i+1).limit(10);
+        HashMap<Integer, List<Integer>> numberMap = numberStream.collect(Collector.of(
+                HashMap::new,
+                (theMap, element) -> {
+                    int key = element.intValue() % 3;
+                    if (theMap.get(key) != null){
+                        List<Integer> value = theMap.get(key);
+                        value.add(element.intValue());
+                        theMap.put(key, value);
+                    }else{
+                        theMap.put(key, new ArrayList<>(Arrays.asList(element.intValue())));
+                    }
+                },
+                (map1, map2) -> {
+                    map2.forEach((key, value) -> {
+                        if(map1.containsKey(key)){
+                            map1.get(key).addAll(value);
+                        } else {
+                            map1.put(key, value);
+                        }
+                    });
+                    return map1;
+                }));
+        assertEquals(Arrays.asList(1,4,7), numberMap.get(1));
     }
 
     @SuppressWarnings({"ConstantConditions", "unused"})
@@ -487,7 +502,15 @@ class StreamingTest {
                         theMap.put(element.getKey(), values);
                     }
                 },
-                (theMap, u) -> {});
+                (map1, map2) -> {
+                    map2.forEach((key, value) -> {
+                        if(map1.containsKey(key)){
+                            map1.get(key).addAll(value);
+                        } else {
+                            map1.put(key, value);
+                        }
+                    });
+                });
 
         // --end-->
 
@@ -507,8 +530,15 @@ class StreamingTest {
 
         // TODO: implement grouping collector using `stream.collect`. This time please use `Collectors.groupingBy`
         // <--start
-        //Map<String, List<Integer>> map = stream.collect(Collectors.groupingBy();
-        Map<String, List<Integer>> map = null;
+        Map<String, List<Integer>> map = stream.collect(
+                Collectors.groupingBy(KeyValuePair::getKey,
+                        Collector.of(
+                                ArrayList::new,
+                                (list, downStreamElement) -> list.add(downStreamElement.getValue()),
+                                (list1, list2) -> {
+                                    list1.addAll(list2);
+                                    return list1;
+                                })));
         // --end-->
 
         assertEquals(2, map.size());
@@ -528,7 +558,21 @@ class StreamingTest {
         // TODO: implement grouping collector using `stream.collect`. You should use `Collectors.groupingBy` and
         // TODO: downstream collector.
         // <--start
-        Map<String, Long> map = null;
+        Map<String, Long> map = stream.collect(
+                Collectors.groupingBy(KeyValuePair::getKey,
+                        Collector.of(
+                                () -> new long[1],
+                                (sum, downStreamElement) ->  {
+                                    sum[0]++;
+                                },
+                                (sum1, sum2) -> {
+                                    sum1[0] += sum2[0];
+                                    return sum1;
+                                },
+                                finalSum -> finalSum[0]
+                        )
+                )
+        );
         // --end-->
 
         assertEquals(2, map.size());
@@ -548,8 +592,21 @@ class StreamingTest {
         // TODO: implement grouping collector using `stream.collect`. You should use `Collectors.groupingBy` and
         // TODO: downstream collector.
         // <--start
-        //Map<String, Integer> map = stream.collect(Collectors.groupingBy(KeyValuePair::getKey));
-        Map<String, Integer> map = null;
+        Map<String, Integer> map = stream.collect(
+                Collectors.groupingBy(
+                        KeyValuePair::getKey,
+                        Collector.of(
+                                () -> new int[1],
+                                (sum, element) -> sum[0] += element.getValue(),
+                                (sum1, sum2) -> {
+                                    sum1[0] += sum2[0];
+                                    return sum1;
+                                },
+                                finalResult -> finalResult[0]
+
+                        )
+                )
+        );
         // --end-->
 
         assertEquals(2, map.size());
@@ -582,7 +639,8 @@ class StreamingTest {
 
         // TODO: please calculate the total number of characters using `reduce`.
         // <--start
-        Integer total = words.stream().reduce(0,
+        Integer total = words.stream().reduce(
+                0,
                 (totalLength, i) -> totalLength + i.length(),
                 (a, b) -> a+b);
         // --end-->
